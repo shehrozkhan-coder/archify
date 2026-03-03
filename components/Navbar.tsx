@@ -3,7 +3,7 @@ import { Box } from "lucide-react";
 import { useOutletContext } from "react-router";
 
 const Navbar = () => {
-  const { isSignedIn, username, signIn, signOut} = useOutletContext<AuthContext>()
+  const { isSignedIn, userName, signIn, signOut} = useOutletContext<AuthContext>()
 
   const handleAuthClick = async () => {
     if(isSignedIn) {
@@ -79,7 +79,7 @@ const Navbar = () => {
           {isSignedIn ? (
             <>
               <span className="greeting text-gray-800 font-medium">
-                Hi, {username}
+                Hi, {userName}
               </span>
               <button onClick={handleAuthClick} className={premiumButtonClass}>
                 Log Out
