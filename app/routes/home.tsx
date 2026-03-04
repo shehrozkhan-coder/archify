@@ -3,8 +3,8 @@ import type { Route } from "./+types/home";
 import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
 import Upload from "components/Upload";
 import { useNavigate } from "react-router";
-import { useState } from "react";
-import { createProject } from "lib/puter.action";
+import { useEffect, useRef, useState } from "react";
+import { createProject, getProject } from "lib/puter.action";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -16,8 +16,12 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<DesignItem[]>([])
+  const isCreatingProjectRef = useRef(false);
 
   const handleUploadComplete = async (base64Image: string) => {
+    try {
+      if(isCreatingProjectRef.current) return false;
+    isCreatingProjectRef.current = true;
     const newId = Date.now().toString();
     const name = `Residence ${newId}`;
 
@@ -41,7 +45,19 @@ export default function Home() {
       }
     });
     return true;
+    } finally {
+      isCreatingProjectRef.current = false
+    }
+    
   }
+
+  useEffect(()=>{
+    const fetchProjects = async () => {
+      const items = await getProject(); // ← ab imported function call hoga
+      setProjects(items!)
+    }
+    fetchProjects();
+},[])
   return (
     <div className="home">
       <Navbar />
@@ -116,7 +132,7 @@ export default function Home() {
 
           <div className="projects-grid">
             {projects.map(({id, name, renderedImage, sourceImage, timestamp}) => (
-              <div className="project-card group">
+              <div className="project-card group" onClick={() => navigate(`/visualizer/${id}`)}>
               <div className="preview">
                 <img
                 src={renderedImage || sourceImage} alt="Project"/>
